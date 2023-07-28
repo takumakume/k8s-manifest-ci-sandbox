@@ -1,18 +1,28 @@
 name: CI
 on:
-  push:
+
 
 jobs:
+  directory:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: matrix
+        run: echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -c .)" >> $GITHUB_OUTPUT
+
   ci:
     name: CI
     runs-on: ubuntu-latest
+    if: ${{ needs.directories.outputs.matrix != '[]' }}
     strategy:
       max-parallel: 1
       matrix:
-        directories:
-          - $(find `pwd` -type -name "kustomization.yaml" -exec dirname {} \;)
+        directory: ${{fromJson(needs.directory.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       - uses: karancode/kustomize-github-action@master
         with:
           kustomize_version: '5.1.0'
