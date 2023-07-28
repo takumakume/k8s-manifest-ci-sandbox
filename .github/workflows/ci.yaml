@@ -7,7 +7,7 @@ jobs:
   generate-directories:
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.matrix.set-output.value }}
+      directories: ${{ steps.set-output.outputs.value }}
     steps:
       - uses: actions/checkout@v3
       - id: set-output
