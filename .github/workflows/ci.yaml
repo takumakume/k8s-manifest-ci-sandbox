@@ -1,7 +1,8 @@
 name: CI
 on:
-
-
+  push:
+    branches:
+      - "*"
 jobs:
   directory:
     runs-on: ubuntu-latest
