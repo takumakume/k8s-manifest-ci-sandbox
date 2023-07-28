@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        directories:
+          - $(find `pwd` -type -name "kustomization.yaml" -exec dirname {} \;)
+    steps:
+      - uses: actions/checkout@master
+      - uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: '5.1.0'
+          kustomize_build_dir: ${{ matrix.directories }}
+          kustomize_comment: true
+          #kustomize_output_file: "gitops/rendered.yaml"
+          kustomize_build_options: "--enable-helm"
+          enable_alpha_plugins: false
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
