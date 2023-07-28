@@ -12,8 +12,9 @@ jobs:
       - uses: actions/checkout@v3
       - id: matrix
         run: |
-          echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)" 
-          echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)" >> $GITHUB_OUTPUT
+          directories=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)
+          echo "matrix=${directories}" 
+          echo "matrix=${directories}" >> $GITHUB_OUTPUT
 
   ci:
     name: CI
