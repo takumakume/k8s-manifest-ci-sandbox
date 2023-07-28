@@ -19,7 +19,7 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    if: ${{ needs.directories.outputs.matrix != '[]' }}
+    if: ${{ needs.directory.outputs.matrix != '[]' }}
     strategy:
       max-parallel: 1
       matrix:
