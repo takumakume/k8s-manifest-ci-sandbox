@@ -14,11 +14,12 @@ jobs:
         run: |
           echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)" 
           echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
   ci:
     name: CI
     runs-on: ubuntu-latest
-    if: ${{ needs.directories.outputs.directories != '[]' }}
+    if: ${{ needs.directories.result == 'success' && needs.directories.outputs.directories != '[]' }}
     strategy:
       max-parallel: 1
       fail-fast: false
