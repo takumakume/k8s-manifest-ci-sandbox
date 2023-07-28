@@ -4,17 +4,17 @@ on:
     branches:
       - "*"
 jobs:
-  directories:
+  generate-directories:
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.matrix.outputs.matrix }}
+      directories: ${{ steps.matrix.set-output.value }}
     steps:
       - uses: actions/checkout@v3
-      - id: matrix
+      - id: set-output
         run: |
           directories=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)
-          echo "matrix=${directories}" 
-          echo "matrix=${directories}" >> $GITHUB_OUTPUT
+          echo "value=${directories}" 
+          echo "value=${directories}" >> $GITHUB_OUTPUT
 
   ci:
     name: CI
@@ -23,7 +23,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        directory: ${{ fromJSON(needs.directories.outputs.directories) }}
+        directory: ${{ fromJSON(needs.generate-directories.outputs.directories) }}
     steps:
       - uses: actions/checkout@v3
       - uses: karancode/kustomize-github-action@master
