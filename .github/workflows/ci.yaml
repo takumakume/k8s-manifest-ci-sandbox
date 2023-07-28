@@ -4,13 +4,12 @@ on:
     branches:
       - "*"
 jobs:
-  directory:
+  directories:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
+      directories: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - id: matrix
         run: |
           echo "matrix=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs .)" 
@@ -19,17 +18,17 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    if: ${{ needs.directory.outputs.matrix != '[]' }}
+    if: ${{ needs.directories.outputs.directories != '[]' }}
     strategy:
       max-parallel: 1
       matrix:
-        directory: ${{fromJson(needs.directory.outputs.matrix)}}
+        directory: ${{ fromJson(needs.directories.outputs.directories) }}
     steps:
       - uses: actions/checkout@v3
       - uses: karancode/kustomize-github-action@master
         with:
           kustomize_version: '5.1.0'
-          kustomize_build_dir: ${{ matrix.directories }}
+          kustomize_build_dir: ${{ matrix.directory }}
           kustomize_comment: true
           #kustomize_output_file: "gitops/rendered.yaml"
           kustomize_build_options: "--enable-helm"
