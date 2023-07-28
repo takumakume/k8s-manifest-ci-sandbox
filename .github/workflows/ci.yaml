@@ -19,7 +19,7 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    if: ${{ needs.directories.result == 'success' && needs.directories.outputs.directories != '[]' }}
+    if: ${{ needs.directories.result == 'success' }}
     strategy:
       max-parallel: 1
       fail-fast: false
