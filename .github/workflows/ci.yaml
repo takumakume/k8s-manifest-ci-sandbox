@@ -21,6 +21,7 @@ jobs:
     if: ${{ needs.directories.outputs.directories != '[]' }}
     strategy:
       max-parallel: 1
+      fail-fast: false
       matrix:
         directory: ${{ fromJson(needs.directories.outputs.directories) }}
     steps:
