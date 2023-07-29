@@ -6,7 +6,6 @@ on:
 
 jobs:
   ci:
-    needs: kustomize-directories
     name: CI
     runs-on: ubuntu-latest
     strategy:
