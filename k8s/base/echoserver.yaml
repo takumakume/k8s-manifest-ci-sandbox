@@ -3,17 +3,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: echoserver
-  namespace: echoserver
 spec:
-  replicas: 1
+  selector:
+    matchLabels:
+      app: echoserver
   template:
     metadata:
       labels:
         app: echoserver
     spec:
-      selector:
-        matchLabels:
-          app: echoserver
       containers:
       - image: gcr.io/google_containers/echoserver:1.0
         imagePullPolicy: Always
