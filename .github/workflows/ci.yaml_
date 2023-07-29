@@ -1,0 +1,45 @@
+name: CI
+on:
+  push:
+    branches:
+      - "*"
+jobs:
+  kustomize-directories:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.set-output.outputs.value }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-output
+        run: echo "value=$(find `pwd` -name "kustomization.yaml" -exec dirname {} \; | jq -Rc . | jq -cs . | grep -v /base/)" >> $GITHUB_OUTPUT
+
+  ci:
+    needs: kustomize-directories
+    name: CI
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJSON(needs.kustomize-directories.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: '5.1.0'
+          kustomize_build_dir: ${{ matrix.directory }}
+          kustomize_comment: true
+          kustomize_output_file: ".kustomized.yaml"
+          kustomize_build_options: "--enable-helm"
+          enable_alpha_plugins: false
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: '/kubeconform'
+          args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' .kustomized.yaml"
