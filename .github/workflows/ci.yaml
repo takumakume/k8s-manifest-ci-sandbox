@@ -8,11 +8,6 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      fail-fast: false
-      matrix:
-        directory: ${{ fromJSON(needs.kustomize-directories.outputs.directories) }}
     steps:
       - uses: actions/checkout@v3
       - uses: imranismail/setup-kustomize@master
