@@ -30,4 +30,4 @@ jobs:
       - uses: docker://quay.io/fairwinds/polaris:master
         with:
           entrypoint: 'polaris'
-          args: "audit --audit-path .manifests/ --output pretty"
+          args: "audit --audit-path .manifests/ --format pretty"
