@@ -27,5 +27,7 @@ jobs:
         with:
           entrypoint: '/pluto'
           args: "detect-files -o wide -d .manifests/"
-      - uses: fairwindsops/polaris/.github/actions/setup-polaris@master
-
+      - uses: docker://quay.io/fairwinds/polaris:master
+        with:
+          entrypoint: '/polaris'
+          args: "audit --audit-path .manifests/ --output pretty"
