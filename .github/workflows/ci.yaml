@@ -29,5 +29,5 @@ jobs:
           args: "detect-files -o wide -d .manifests/"
       - uses: docker://quay.io/fairwinds/polaris:master
         with:
-          entrypoint: '/polaris'
+          entrypoint: 'polaris'
           args: "audit --audit-path .manifests/ --output pretty"
