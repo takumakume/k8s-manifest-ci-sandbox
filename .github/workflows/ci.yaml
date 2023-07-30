@@ -23,7 +23,9 @@ jobs:
         with:
           entrypoint: '/kubeconform'
           args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ./.manifests/"
-      - uses: FairwindsOps/pluto/github-action@master
-      - run: pluto detect-files -o wide -d .manifests/
+      - uses: docker://quay.io/fairwinds/pluto:v5
+        with:
+          entrypoint: '/pluto'
+          args: "detect-files -o wide -d .manifests/"
       - uses: fairwindsops/polaris/.github/actions/setup-polaris@master
 
