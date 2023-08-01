@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: imranismail/setup-kustomize@master
+      # - uses: imranismail/setup-kustomize@master
+      #   with:
+      #     kustomize-version: "5.1.0"
+      # - run: set -o pipefail; mkdir .manifests; find . -type d | grep overlays/ | xargs -I{} sh -c 'kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml'
+      - uses: docker://registry.k8s.io/kustomize/kustomize:v5.1.0
         with:
-          kustomize-version: "5.1.0"
-      - run: set -o pipefail; mkdir .manifests; find . -type d | grep overlays/ | xargs -I{} sh -c 'kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml'
+          entrypoint: /bin/sh
+          args: "-c 'set -xo pipefail; mkdir .manifests; find . -type d | grep overlays/ | xargs -I{} sh -c \"kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml\"'"
       - uses: docker/login-action@master
         with:
           registry: ghcr.io
