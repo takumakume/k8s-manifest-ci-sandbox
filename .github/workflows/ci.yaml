@@ -17,7 +17,7 @@ jobs:
       - uses: docker://registry.k8s.io/kustomize/kustomize:v5.1.0
         with:
           entrypoint: /bin/sh
-          args: "-c 'set -xo pipefail; mkdir .manifests; find . -type d | grep overlays/ | xargs -I{} sh -c \"kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml\"'"
+          run: set -o pipefail; mkdir .manifests; find . -type d | grep overlays/ | xargs -I{} sh -c 'kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml'
       - uses: docker/login-action@master
         with:
           registry: ghcr.io
