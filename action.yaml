@@ -17,4 +17,5 @@ runs:
         args: "detect-files -o wide -d ${{ env.K8S_CI_MANIFESTS_PATH}}"
     - uses: docker://quay.io/fairwinds/polaris:master
       with:
+        entrypoint: polaris
         args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
