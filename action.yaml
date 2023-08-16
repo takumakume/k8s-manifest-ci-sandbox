@@ -3,19 +3,35 @@ description: 'Run kubernetes manifests CI'
 
 runs:
   using: 'composite'
+  # steps:
+  #   - uses: docker/login-action@master
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ github.token }}
+  #   - uses: docker://ghcr.io/yannh/kubeconform:latest
+  #     with:
+  #       args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${{ env.K8S_CI_MANIFESTS_PATH }}"
+  #   - uses: docker://quay.io/fairwinds/pluto:v5
+  #     with:
+  #       args: "detect-files -o wide -d ${{ env.K8S_CI_MANIFESTS_PATH}}"
+  #   - uses: docker://quay.io/fairwinds/polaris:master
+  #     with:
+  #       entrypoint: polaris
+  #       args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
   steps:
-    - uses: docker/login-action@master
+    - name: Run kubeconform
+      uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ github.token }}
-    - uses: docker://ghcr.io/yannh/kubeconform:latest
-      with:
+        entrypoint: kubeconform
         args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${{ env.K8S_CI_MANIFESTS_PATH }}"
-    - uses: docker://quay.io/fairwinds/pluto:v5
+    - name: Run pluto
+      uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
+        entrypoint: pluto
         args: "detect-files -o wide -d ${{ env.K8S_CI_MANIFESTS_PATH}}"
-    - uses: docker://quay.io/fairwinds/polaris:master
+    - name: Run polaris
+      uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
         entrypoint: polaris
         args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
