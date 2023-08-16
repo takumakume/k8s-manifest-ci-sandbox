@@ -1,6 +1,17 @@
 name: 'Run kubernetes manifests CI'
 description: 'Run kubernetes manifests CI'
 
+inputs:
+  kustomize_version:
+    default: "5.1.0"
+    description: "kustomize version"
+  kustomize_yaml_name:
+    default: kustomization.yaml
+    description: "kustomize config file name regexp"
+  kustomize_directory_pattern:
+    default: "*/overlays/*"
+    description: "kustomize directory name regexp"
+
 runs:
   using: 'composite'
   # steps:
@@ -11,20 +22,27 @@ runs:
   #       password: ${{ github.token }}
   #   - uses: docker://ghcr.io/yannh/kubeconform:latest
   #     with:
-  #       args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${{ env.K8S_CI_MANIFESTS_PATH }}"
+  #       args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' .manifests"
   #   - uses: docker://quay.io/fairwinds/pluto:v5
   #     with:
   #       args: "detect-files -o wide -d ${{ env.K8S_CI_MANIFESTS_PATH}}"
   #   - uses: docker://quay.io/fairwinds/polaris:master
   #     with:
   #       entrypoint: polaris
-  #       args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
+  #       args: "audit --audit-path --format pretty .manifests"
   steps:
+    - uses: imranismail/setup-kustomize@master
+      with:
+        kustomize-version: ${{ inputs.kustomize_version }}
+    - shell: bash
+      run: |
+        mkdir .manifests;
+        find . -type f -name "${{ inputs.kustomize_yaml_name }}" -path "${{ inputs.kustomize_directory_pattern }}" | xargs -I{} dirname {} | sort | uniq | xargs -I{} sh -c 'kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml'
     - name: Run kubeconform
       uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
         entrypoint: kubeconform
-        args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${{ env.K8S_CI_MANIFESTS_PATH }}"
+        args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' .manifests"
     - name: Run pluto
       uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
@@ -34,4 +52,4 @@ runs:
       uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
         entrypoint: polaris
-        args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
+        args: "audit --audit-path --format pretty .manifests"
