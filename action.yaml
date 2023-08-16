@@ -34,10 +34,18 @@ runs:
     - uses: imranismail/setup-kustomize@master
       with:
         kustomize-version: ${{ inputs.kustomize_version }}
-    - shell: bash
+    - name: Run kustomize
+      shell: bash
       run: |
         mkdir .manifests;
         find . -type f -name "${{ inputs.kustomize_yaml_name }}" -path "${{ inputs.kustomize_directory_pattern }}" | xargs -I{} dirname {} | sort | uniq | xargs -I{} sh -c 'kustomize build {} > .manifests/$(echo {} | tr / _ | tr . _).yaml'
+    - name: Check outputs manifests
+      shell: bash
+      run: |
+        if ! find .manifests -type f -print -quit; then
+          echo "No manifests found in .manifests directory"
+          exit 1
+        fi
     - name: Run kubeconform
       uses: docker://docker.io/takumakume/k8s-ci:latest
       with:
