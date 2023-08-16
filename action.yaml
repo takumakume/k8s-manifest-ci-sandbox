@@ -11,10 +11,10 @@ runs:
         password: ${{ github.token }}
     - uses: docker://ghcr.io/yannh/kubeconform:latest
       with:
-        args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${K8S_CI_MANIFESTS_PATH}"
+        args: "-schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' ${{ env.K8S_CI_MANIFESTS_PATH }}"
     - uses: docker://quay.io/fairwinds/pluto:v5
       with:
-        args: "detect-files -o wide -d ${K8S_CI_MANIFESTS_PATH}"
+        args: "detect-files -o wide -d ${{ env.K8S_CI_MANIFESTS_PATH}}"
     - uses: docker://quay.io/fairwinds/polaris:master
       with:
-        args: "audit --audit-path --format pretty ${K8S_CI_MANIFESTS_PATH}"
+        args: "audit --audit-path --format pretty ${{ env.K8S_CI_MANIFESTS_PATH }}"
